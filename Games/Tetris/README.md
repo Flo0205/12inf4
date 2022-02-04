@@ -1,5 +1,5 @@
 # Important
-This console game utilizes a non-standart python package!  
+This console game utilizes a non-standard python package!  
 
 To be able to play this game please follow these steps:  
 1) Open cmd in this folder
