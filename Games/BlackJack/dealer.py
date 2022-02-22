@@ -7,6 +7,7 @@ class Dealer(PlayerBase):
         super().__init__(deck)
         self.riskRoundDone = False
 
+    # Hier entscheidet der Dealer, ob er eine Karte zieht oder nicht
     def DecideAction(self):
         value = self.GetHandValue()
 
