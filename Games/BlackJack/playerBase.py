@@ -1,10 +1,12 @@
 from deck import Deck
 
 
+# Standart Klasse, von der Spieler und Dealer erben.
+# Enthält alle grundlegenden Eigenschaften und Funktionen
 class PlayerBase(object):
     def __init__(self, deck: Deck):
         self._cards = []
-        self.done = False
+        self.Done = False
         self._deck = deck
 
     def GetHandValue(self):
@@ -14,4 +16,4 @@ class PlayerBase(object):
         self._cards.append(self._deck.Draw())
 
     def Pass(self):
-        self.done = True
+        self.Done = True

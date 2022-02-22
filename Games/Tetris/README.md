@@ -1,3 +1,5 @@
+# DISCONTINUED
+ 
 # Important
 This console game utilizes a non-standard python package!  
 
