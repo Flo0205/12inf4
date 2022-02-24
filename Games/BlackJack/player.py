@@ -3,14 +3,15 @@ from playerBase import PlayerBase
 
 # Der Spieler, muss ich mehr sagen?
 class Player(PlayerBase):
-    def __init__(self, deck):
+    def __init__(self, deck, id):
         super().__init__(deck)
+        self.ID = id
     
     # Lässt den Spieler eine Eingabe machen und verarbeitet diese
     def GetPlayerInput(self):
         done = False
         while not done:
-            inString = input("Draw: 1\nPass: 2\n\nInput number: ")
+            inString = input(f"\n\nPlayer {self.ID}\nDraw: 1\nPass: 2\n\nInput number: ")
             if not inString.isnumeric():
                 print("\n\nOnly input numbers!")
                 continue
