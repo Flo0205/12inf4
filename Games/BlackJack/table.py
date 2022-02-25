@@ -19,8 +19,8 @@ class Table(object):
             self.pValues[pc+1] = 0
         
 
-    # Startet das Spiel. Mögliche Rückgabewerte: "win", "loss" oder "draw"
-    def Play(self) -> str:
+    # Startet das Spiel. Mögliche Rückgabewerte: {1: "win", 2: "loss", 3: "win", 4: "draw"}
+    def Play(self) -> dict:
         # Lässt das Spiel solange laufen, bis beide passen oder einer verliert
         done = False
         while not done:
@@ -46,20 +46,58 @@ class Table(object):
                 if not p.Done:
                     done = False
 
-            # TODO Check ob einer über 21 ist
+            # Check ob einer über 21 ist
+            # Spieler Check
+            for i in range(len(self._players)):
+                if not i+1 in self.response:
+                    if self.pValues[i+1] > 21:
+                        self._players[i].Done = True
+                        self.response[i+1] = "loss"
+                    elif self.pValues[i+1] == 21:
+                        self._players[i].Done = True
+                        self.response[i+1] = "win"
+            # Dealer Check
+            if self.dValue == 21:
+                for i in range(len(self._players)):
+                    if not i+1 in self.response:
+                        self._players[i].Done = True
+                        self.response[i+1] = "loss"
+            elif self.dValue > 21:
+                for i in range(len(self._players)):
+                    if not i+1 in self.response:
+                        self._players[i].Done = True
+                        self.response[i+1] = "win"
 
-        # TODO Siegescheck
+        # Siegescheck
+        for i in range(len(self._players)):
+            if not i+1 in self.response:
+                if self.pValues[i+1] == self.dValue:
+                    self.response[i+1] = "draw"
+                elif self.pValues[i+1] > self.dValue:
+                    self.response[i+1] = "win"
+                else:
+                    self.response[i+1] = "loss"
+
+        self._printResult(self.response)
+        return self.response
+
 
     # Gibt die Werte beider Hände in der Konsole aus
-    def _printStats(self, pValues, dValue):
+    def _printStats(self, pValues: dict, dValue: int):
         print("\n\n-----------------------")
         for i in range(len(self._players)):
             print(f"Player {i+1}: {pValues[i+1]}")
         print(f"Dealer: {dValue}")
         print("-----------------------\n")
 
+    def _printResult(self, response: dict):
+        print("\n\n\n-----------------------")
+        for k in sorted(response):
+            print(f"Player {k}: {response[k]}")
+        print("-----------------------\n")
+
 
 # Startet das Spiel, wenn diese Datei ausgeführt wird
 if __name__ == "__main__":
-    table = Table(1)
-    table.Play()
+    table = Table(2)
+    print(table.Play())
