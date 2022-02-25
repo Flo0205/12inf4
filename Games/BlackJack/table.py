@@ -101,7 +101,7 @@ class Table(object):
 
 # Startet das Spiel, wenn diese Datei ausgeführt wird
 if __name__ == "__main__":
-    inString = input("Wie viele Spieler spielen mit? (1 - 4)  ")
+    inString = input("How many players are playing? (1 - 4)  ")
     if inString.isnumeric():
         inNum = int(inString)
         if inNum > 0 and inNum < 5:
