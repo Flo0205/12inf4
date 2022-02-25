@@ -58,11 +58,13 @@ class Table(object):
                         self.response[i+1] = "win"
             # Dealer Check
             if self.dValue == 21:
+                self._dealer.Done = True
                 for i in range(len(self._players)):
                     if not i+1 in self.response:
                         self._players[i].Done = True
                         self.response[i+1] = "loss"
             elif self.dValue > 21:
+                self._dealer.Done = True
                 for i in range(len(self._players)):
                     if not i+1 in self.response:
                         self._players[i].Done = True
@@ -99,5 +101,9 @@ class Table(object):
 
 # Startet das Spiel, wenn diese Datei ausgeführt wird
 if __name__ == "__main__":
-    table = Table(2)
-    print(table.Play())
+    inString = input("Wie viele Spieler spielen mit? (1 - 4)  ")
+    if inString.isnumeric():
+        inNum = int(inString)
+        if inNum > 0 and inNum < 5:
+            table = Table(inNum)
+            table.Play()
