@@ -47,3 +47,6 @@ class PlayerUI(PlayerBase):
             self.balanceLabel.config(text=f"Value: {value}")
         else:
             self.balanceLabel.config(text=f"Balance: {value}")
+
+    def changeColor(self, color: str):
+        self.playerFrame.config(bg=color)

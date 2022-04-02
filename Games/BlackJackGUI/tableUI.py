@@ -35,8 +35,6 @@ class TableUI(object):
     def updateDealerValue(self, value: int):
         self.dealerLabel.config(text=f"Dealer: {value}")
 
-
-    # TODO: Die ganze Funktion hier ist komisch.... Mach die neu
     def Continue(self):
         last = self.playerUIs[self.currentPlayer-1]
         last: PlayerUI
@@ -65,6 +63,7 @@ class TableUI(object):
                 self.dealerLabel.config(text=f"Dealer: {self._dealer.GetHandValue()}")
                 self.DealerDeathCheck()
             self.ResponseProcessor()
+            self.CleanUp()
             self.finish()
             return
 
@@ -76,7 +75,6 @@ class TableUI(object):
                 self.currentPlayer = 1
             next = self.playerUIs[self.currentPlayer-1]
         next.placeGameButtons()
-
     
     def PlayerDeathCheck(self, player: PlayerUI):
         value = player.GetHandValue()
@@ -93,18 +91,19 @@ class TableUI(object):
             self._dealer.Done = True
             p: PlayerUI
             for p in self.playerUIs:
-                if not p.Done:
+                if p.number not in self.response.keys():
                     p.Done = True
                     self.response[p.number] = "win"
         if value == 21:
             self._dealer.Done = True
             p: PlayerUI
             for p in self.playerUIs:
-                if not p.Done:
+                if p.number not in self.response.keys():
                     p.Done = True
                     self.response[p.number] = "loss"
 
     def ResponseProcessor(self):
+        self.DealerDeathCheck()
         dValue = self._dealer.GetHandValue()
         for p in self.playerUIs:
             p:PlayerUI
@@ -116,3 +115,19 @@ class TableUI(object):
                     self.response[p.number] = "win"
                 elif pValue < dValue:
                     self.response[p.number] = "loss"
+
+    def CleanUp(self):
+        # self.dealerLabel.destroy()
+        for pUI in self.playerUIs:
+            pUI: PlayerUI
+            pUI.destroyGameButtons()
+
+            if self.response[pUI.number] == "win":
+                pUI.changeColor("green")
+                continue
+            elif self.response[pUI.number] == "loss":
+                pUI.changeColor("red")
+                continue
+            else:
+                pUI.changeColor("blue")
+                continue

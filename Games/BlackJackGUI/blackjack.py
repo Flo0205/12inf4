@@ -1,15 +1,26 @@
-from tkinter import *
+from tkinter import Tk
+from mainpage import MainPage
 from tableUI import TableUI
 
-def GameFinished():
-    print(table.response)
 
-main = Tk()
-main.geometry("550x200")
-main.resizable(0, 0)
+class BlackJack(object):
+    def __init__(self) -> None:
+        self.main = Tk()
+        self.main.geometry("550x200")
+        self.main.resizable(0, 0)
 
-table = TableUI(main, 4, GameFinished)
-print("yes")
+        self.config = MainPage(self.main, self.SetConfigs)
 
-main.mainloop()
+        self.main.mainloop()
+
+    def SetConfigs(self):
+        self.table = TableUI(self.main, self.config.players, self.GameFinished)
+
+    def GameFinished(self):
+        print(self.table.response)
+
+
+
+if __name__ == "__main__":
+    BlackJack()
 
