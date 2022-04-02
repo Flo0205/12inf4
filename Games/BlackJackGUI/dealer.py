@@ -10,6 +10,9 @@ class Dealer(object):
 
     # Hier entscheidet der Dealer, ob er eine Karte zieht oder nicht
     def DecideAction(self):
+        if self.Done:
+            return
+
         value = self.GetHandValue()
 
         if value < 16:

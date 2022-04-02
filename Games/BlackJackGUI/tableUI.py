@@ -1,13 +1,14 @@
-from torch import true_divide
+from argparse import Action
 from dealer import Dealer
 from deck import Deck
 from playerUI import PlayerUI
 from tkinter import *
 
 class TableUI(object):
-    def __init__(self, parent: Tk, players: int):
+    def __init__(self, parent: Tk, players: int, finish: Action):
         self.parent = parent
         self.players = players
+        self.finish = finish
         
         deck = Deck()
         self._dealer = Dealer(deck)
@@ -23,7 +24,7 @@ class TableUI(object):
             pui: PlayerUI
             pui.updateBalance(0, True)
         
-        self.__old_init__()
+        self.response = {}
 
         p1 = self.playerUIs[0]
         p1: PlayerUI
@@ -41,98 +42,77 @@ class TableUI(object):
         last: PlayerUI
         last.destroyGameButtons()
         last.updateBalance(last.GetHandValue(), True)
+        self.PlayerDeathCheck(last)
 
 
         self.currentPlayer = self.currentPlayer + 1
-
         if self.currentPlayer > self.players:
-
-            #TODO: Dealer action hier
-            self._dealer.DecideAction()
-            self.updateDealerValue(self._dealer.GetHandValue())
-            #TODO: Auswertung hier
-            self.DeathCheck()
-
             self.currentPlayer = 1
-
-        p: PlayerUI
+            self._dealer.DecideAction()
+            self.dealerLabel.config(text=f"Dealer: {self._dealer.GetHandValue()}")
+            self.DealerDeathCheck()
+            
+            
         done = True
         for p in self.playerUIs:
+            p: PlayerUI
             if not p.Done:
                 done = False
 
         if done:
-            return self.GameOver()
-        else:
-            p = self.playerUIs[self.currentPlayer-1]
-            while p.Done:
-                self.currentPlayer = self.currentPlayer + 1
-                if self.currentPlayer > self.players:
-                    self.currentPlayer = 1
-                p = self.playerUIs[self.currentPlayer-1]
+            while not self._dealer.Done:
+                self._dealer.DecideAction()
+                self.dealerLabel.config(text=f"Dealer: {self._dealer.GetHandValue()}")
+                self.DealerDeathCheck()
+            self.ResponseProcessor()
+            self.finish()
+            return
 
-            p.placeGameButtons()
+        next = self.playerUIs[self.currentPlayer-1]
+        next: PlayerUI
+        while next.Done:
+            self.currentPlayer = self.currentPlayer + 1
+            if self.currentPlayer > self.players:
+                self.currentPlayer = 1
+            next = self.playerUIs[self.currentPlayer-1]
+        next.placeGameButtons()
 
-        
-    def GameOver(self):
-        print("Game Over!")
+    
+    def PlayerDeathCheck(self, player: PlayerUI):
+        value = player.GetHandValue()
+        if value > 21:
+            player.Done = True
+            self.response[player.number] = "loss"
+        elif value == 21:
+            player.Done = True
+            self.response[player.number] = "win"
 
-    # Funktionen des alten tables
-    def __old_init__(self):
-        # Erstellung der Werte-Variablen
-        self.dValue = 0
-        self.pValues = {}
-        self.response = {}
-
-        for pc in range(self.players):
-            self.pValues[pc+1] = 0
-
-    def DeathCheck(self):
-        # Check ob einer über 21 ist
-            # Spieler Check
-            for i in range(self.players):
-                if not i+1 in self.response:
-                    self.pValues[i+1] = self.playerUIs[i].GetHandValue()
-                    if self.pValues[i+1] > 21:
-                        self.playerUIs[i].Done = True
-                        self.response[i+1] = "loss"
-                    elif self.pValues[i+1] == 21:
-                        self.playerUIs[i].Done = True
-                        self.response[i+1] = "win"
-            # Dealer Check
-            if self.dValue == 21:
-                self._dealer.Done = True
-                for i in range(self.players):
-                    if not i+1 in self.response:
-                        self.playerUIs[i].Done = True
-                        self.response[i+1] = "loss"
-            elif self.dValue > 21:
-                self._dealer.Done = True
-                for i in range(len(self.players)):
-                    if not i+1 in self.response:
-                        self.playerUIs[i].Done = True
-                        self.response[i+1] = "win"
+    def DealerDeathCheck(self):
+        value = self._dealer.GetHandValue()
+        if value > 21:
+            self._dealer.Done = True
+            p: PlayerUI
+            for p in self.playerUIs:
+                if not p.Done:
+                    p.Done = True
+                    self.response[p.number] = "win"
+        if value == 21:
+            self._dealer.Done = True
+            p: PlayerUI
+            for p in self.playerUIs:
+                if not p.Done:
+                    p.Done = True
+                    self.response[p.number] = "loss"
 
     def ResponseProcessor(self):
-        # Siegescheck
-        for i in range(self.players):
-            if not i+1 in self.response:
-                if self.pValues[i+1] == self.dValue:
-                    self.response[i+1] = "draw"
-                elif self.pValues[i+1] > self.dValue:
-                    self.response[i+1] = "win"
-                else:
-                    self.response[i+1] = "loss"
-        
-
-
-
-
-
-main = Tk()
-main.geometry("550x200")
-main.resizable(0, 0)
-
-TableUI(main, 4)
-
-main.mainloop()
+        dValue = self._dealer.GetHandValue()
+        for p in self.playerUIs:
+            p:PlayerUI
+            if p.number not in self.response.keys():
+                pValue = p.GetHandValue()
+                if pValue == dValue:
+                    self.response[p.number] = "draw"
+                elif pValue > dValue:
+                    self.response[p.number] = "win"
+                elif pValue < dValue:
+                    self.response[p.number] = "loss"
